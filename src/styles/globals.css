@@ -1,0 +1,8 @@
+@layer utilities {
+  .font-geist {
+    font-family: 'Geist', 'Inter', sans-serif;
+  }
+  .font-jetbrains {
+    font-family: 'JetBrains Mono', monospace;
+  }
+}
