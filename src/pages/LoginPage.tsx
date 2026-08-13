@@ -1,19 +1,35 @@
 import { useState } from "react";
-import { useNavigate } from "react-router";
-import { motion } from "motion/react";
-import { Eye, EyeOff, ArrowRight, Check } from "lucide-react";
-import { login } from "@/lib/auth";
+import { motion, AnimatePresence } from "motion/react";
+import { Eye, EyeOff, ArrowRight, Check, Loader2 } from "lucide-react";
+import { useAuth } from "@/lib/authContext";
 
 export default function LoginPage() {
-  const navigate = useNavigate();
-  const [email, setEmail] = useState("admin@alfred.ai");
-  const [password, setPassword] = useState("••••••••");
+  const { login, isLoading } = useAuth();
+  const [email, setEmail]   = useState("");
+  const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [remember, setRemember] = useState(false);
+  const [error, setError]   = useState<string | null>(null);
 
-  const handleLogin = () => {
-    login();
-    navigate("/dashboard");
+  const handleLogin = async () => {
+    if (!email || !password) {
+      setError("Please enter your email and password.");
+      return;
+    }
+    setError(null);
+    try {
+      await login(email, password);
+    } catch (err: unknown) {
+      const msg =
+        err instanceof Error
+          ? err.message
+          : "Invalid credentials. Please try again.";
+      setError(msg);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") handleLogin();
   };
 
   return (
@@ -83,10 +99,13 @@ export default function LoginPage() {
                 <input
                   type="email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-[14px] py-[11px] bg-transparent outline-none text-[14px] text-[#7e7576]/80"
+                  onChange={(e) => { setEmail(e.target.value); setError(null); }}
+                  onKeyDown={handleKeyDown}
+                  className="w-full px-[14px] py-[11px] bg-transparent outline-none text-[14px] text-[#151c27]"
                   style={{ fontFamily: "Inter, sans-serif" }}
                   placeholder="admin@alfred.ai"
+                  autoComplete="email"
+                  disabled={isLoading}
                 />
               </div>
             </div>
@@ -100,12 +119,12 @@ export default function LoginPage() {
                 >
                   PASSWORD
                 </label>
-                <button
+                {/* <button
                   className="text-[11px] tracking-[0.5px]"
                   style={{ fontFamily: "Geist, sans-serif", fontWeight: 500, color: "rgba(88,95,108,0.7)" }}
                 >
                   Forgot?
-                </button>
+                </button> */}
               </div>
               <div
                 className="w-full rounded-[2px] bg-white flex items-center"
@@ -114,18 +133,42 @@ export default function LoginPage() {
                 <input
                   type={showPw ? "text" : "password"}
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="flex-1 px-[14px] py-[11px] bg-transparent outline-none text-[14px] text-[#7e7576]/80"
+                  onChange={(e) => { setPassword(e.target.value); setError(null); }}
+                  onKeyDown={handleKeyDown}
+                  className="flex-1 px-[14px] py-[11px] bg-transparent outline-none text-[14px] text-[#151c27]"
                   style={{ fontFamily: "Inter, sans-serif" }}
+                  autoComplete="current-password"
+                  disabled={isLoading}
                 />
                 <button
                   onClick={() => setShowPw(!showPw)}
                   className="pr-[14px] text-[#585f6c]/40 hover:text-[#585f6c]/70 transition-colors"
+                  tabIndex={-1}
                 >
                   {showPw ? <EyeOff size={13} /> : <Eye size={13} />}
                 </button>
               </div>
             </div>
+
+            {/* Error message */}
+            <AnimatePresence>
+              {error && (
+                <motion.div
+                  initial={{ opacity: 0, y: -4, height: 0 }}
+                  animate={{ opacity: 1, y: 0, height: "auto" }}
+                  exit={{ opacity: 0, y: -4, height: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="overflow-hidden"
+                >
+                  <p
+                    className="text-[12px] text-[#c0392b] leading-[17px] px-[2px]"
+                    style={{ fontFamily: "Inter, sans-serif" }}
+                  >
+                    {error}
+                  </p>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {/* Remember me */}
             <div className="flex items-center gap-[8px]">
@@ -147,16 +190,23 @@ export default function LoginPage() {
             {/* Sign In */}
             <button
               onClick={handleLogin}
-              className="w-full py-[13px] rounded-[2px] bg-black flex items-center justify-center gap-[8px] hover:bg-[#1a1a1a] active:bg-[#2a2a2a] transition-colors"
+              disabled={isLoading}
+              className="w-full py-[13px] rounded-[2px] bg-black flex items-center justify-center gap-[8px] hover:bg-[#1a1a1a] active:bg-[#2a2a2a] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
               style={{ border: "1px solid black" }}
             >
-              <span
-                className="text-white text-[15px] text-center leading-[22px]"
-                style={{ fontFamily: "Geist, sans-serif", fontWeight: 600 }}
-              >
-                Sign In
-              </span>
-              <ArrowRight size={12} color="white" />
+              {isLoading ? (
+                <Loader2 size={16} color="white" className="animate-spin" />
+              ) : (
+                <>
+                  <span
+                    className="text-white text-[15px] text-center leading-[22px]"
+                    style={{ fontFamily: "Geist, sans-serif", fontWeight: 600 }}
+                  >
+                    Sign In
+                  </span>
+                  <ArrowRight size={12} color="white" />
+                </>
+              )}
             </button>
           </div>
 

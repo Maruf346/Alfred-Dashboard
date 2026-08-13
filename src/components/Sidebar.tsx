@@ -1,6 +1,6 @@
 import { useNavigate, useLocation } from "react-router";
 import sidebarSvg from "@/imports/AsideSideNavBarPredictedComponent/svg-m1x0hxxkxj";
-import { logout } from "@/lib/auth";
+import { useAuth } from "@/lib/authContext";
 
 export const SIDEBAR_EXPANDED = 256;
 export const SIDEBAR_COLLAPSED = 72;
@@ -45,18 +45,18 @@ export default function Sidebar({
   onToggle: () => void;
   closeMobile?: () => void;
 }) {
-  const navigate  = useNavigate();
-  const location  = useLocation();
+  const navigate    = useNavigate();
+  const location    = useLocation();
+  const { logout }  = useAuth();
 
   const handleNav = (path: string) => {
     navigate(path);
     closeMobile?.();
   };
 
-  const handleSignOut = () => {
-    logout();
-    navigate("/login");
+  const handleSignOut = async () => {
     closeMobile?.();
+    await logout();
   };
 
   const isActive = (path: string) =>

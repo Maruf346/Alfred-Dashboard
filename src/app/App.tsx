@@ -1,4 +1,4 @@
-import { RouterProvider, createBrowserRouter, redirect } from "react-router";
+import { RouterProvider, createBrowserRouter, redirect, Outlet } from "react-router";
 import { Toaster } from "sonner";
 import LoginPage from "@/pages/LoginPage";
 import DashboardLayout from "@/layouts/DashboardLayout";
@@ -8,6 +8,16 @@ import SubscriptionsPage from "@/pages/SubscriptionsPage";
 import SubscriptionDetailPage from "@/pages/SubscriptionDetailPage";
 import SettingsPage from "@/pages/SettingsPage";
 import { isAuthed } from "@/lib/auth";
+import { AuthProvider } from "@/lib/authContext";
+
+// Root wrapper — AuthProvider lives here so useNavigate is available inside router context
+function RootLayout() {
+  return (
+    <AuthProvider>
+      <Outlet />
+    </AuthProvider>
+  );
+}
 
 function authLoader() {
   if (!isAuthed()) return redirect("/login");
@@ -20,27 +30,33 @@ function loginLoader() {
 }
 
 const router = createBrowserRouter([
-  // Root → redirect based on auth state
-  { index: true, loader: () => isAuthed() ? redirect("/dashboard") : redirect("/login") },
-
-  // Login (public)
-  { path: "/login", Component: LoginPage, loader: loginLoader },
-
-  // Protected layout — wraps all dashboard routes
   {
-    Component: DashboardLayout,
-    loader: authLoader,
+    // Top-level layout provides AuthProvider to all routes
+    Component: RootLayout,
     children: [
-      { path: "/dashboard",          Component: DashboardPage },
-      { path: "/users",              Component: UsersPage },
-      { path: "/subscriptions",      Component: SubscriptionsPage },
-      { path: "/subscriptions/:id",  Component: SubscriptionDetailPage },
-      { path: "/settings",           Component: SettingsPage },
+      // Root → redirect based on auth state
+      { index: true, loader: () => isAuthed() ? redirect("/dashboard") : redirect("/login") },
+
+      // Login (public)
+      { path: "/login", Component: LoginPage, loader: loginLoader },
+
+      // Protected layout — wraps all dashboard routes
+      {
+        Component: DashboardLayout,
+        loader: authLoader,
+        children: [
+          { path: "/dashboard",          Component: DashboardPage },
+          { path: "/users",              Component: UsersPage },
+          { path: "/subscriptions",      Component: SubscriptionsPage },
+          { path: "/subscriptions/:id",  Component: SubscriptionDetailPage },
+          { path: "/settings",           Component: SettingsPage },
+        ],
+      },
+
+      // Catch-all → redirect home
+      { path: "*", loader: () => redirect("/") },
     ],
   },
-
-  // Catch-all → redirect home
-  { path: "*", loader: () => redirect("/") },
 ]);
 
 const toastStyle = {
