@@ -80,13 +80,10 @@ export default function Sidebar({
         {/* Logo row */}
         <div className={`flex items-center shrink-0 mb-[32px] ${isExpanded ? "pl-[16px] pr-[25px]" : "justify-center px-0"}`}>
           <div
-            className="flex items-center justify-center w-[40px] h-[40px] rounded-[8px] bg-black shrink-0 cursor-pointer"
-            style={{ boxShadow: "0px 10px 15px -3px rgba(0,0,0,0.1), 0px 4px 6px -4px rgba(0,0,0,0.1)" }}
+            className="flex items-center justify-center w-[55px] h-[55px] shrink-0 cursor-pointer"
             onClick={onToggle}
           >
-            <svg width="22" height="19" viewBox="0 0 22 19" fill="none">
-              <path d={sidebarSvg.p24855620} fill="white" />
-            </svg>
+            <img src="/logo.png" alt="Alfred Logo" className="w-full h-full object-contain" />
           </div>
 
           <div

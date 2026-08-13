@@ -45,14 +45,8 @@ export default function LoginPage() {
         >
           {/* Logo */}
           <div className="flex flex-col items-center w-full">
-            <div className="relative w-[64px] h-[64px]">
-              <div className="absolute inset-[-6px] rounded-full border border-black/8" />
-              <div className="w-full h-full rounded-full border border-[rgba(207,196,197,0.5)] flex items-center justify-center bg-white">
-                <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
-                  <circle cx="32" cy="32" r="31" stroke="rgba(207,196,197,0.5)" strokeWidth="0.8" fill="white" />
-                  <text x="50%" y="54%" textAnchor="middle" dominantBaseline="middle" fill="#151c27" fontSize="22" fontFamily="Geist, Inter, sans-serif" fontWeight="400">A</text>
-                </svg>
-              </div>
+            <div className="w-[64px] h-[64px] shrink-0 flex items-center justify-center">
+              <img src="/logo.png" alt="Alfred Logo" className="w-full h-full object-contain" />
             </div>
           </div>
 
